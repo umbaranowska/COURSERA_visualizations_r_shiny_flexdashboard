@@ -7,6 +7,3 @@ This app is available at https://umbaranowska.shinyapps.io/your_first_shiny_app/
 This app is available at https://umbaranowska.shinyapps.io/more_complex_shiny_app
 - **03_dashboard/** - Solution to the third peer graded assignment: recreating a flexdashboard with multiple pages and graphs.
 This app is available at INSERT LINK
-
-This repository was initially private while waiting for the assignments to be graded.
-I took this course in my free time mostly as a revision of R Shiny before getting involved in a project that was going to require working on a Shiny App.
