@@ -1,0 +1,131 @@
+---
+title: "Peer Review Three"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: columns
+    vertical_layout: fill
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+
+library(flexdashboard)
+library(tidyverse)
+library(plotly)
+library(shiny)
+
+data = read_csv(url("https://www.dropbox.com/s/4ebgnkdhhxo5rac/cel_volden_wiseman%20_coursera.csv?raw=1"))
+data$Party = recode(data$dem,`1`="Democrat",`0`="Republican")
+
+```
+
+
+Page 1
+======
+
+### Chart A
+
+
+```{r}
+
+plt1 = data %>% 
+  drop_na() %>%
+  filter(year>1979) %>% 
+  group_by(year,Party) %>% 
+  summarise(passed=sum(all_pass, na.rm = TRUE)) %>%
+  ungroup()
+
+ggplot(plt1, aes(x = year, y = passed, color = Party)) +
+  geom_line() +
+  ylim(0, 1000) +
+  xlab('Year') +
+  ylab('All Bills Passed') +
+  ggtitle('Number of Bills Passed Since 1980')
+
+```
+
+
+
+Page 2
+======
+
+Column
+---
+
+### Chart B
+
+```{r}
+
+plt2 = data%>%
+  drop_na()%>%
+  filter(congress==110)
+
+plotly::ggplotly(
+  ggplot(plt2, aes(x = votepct, y = all_pass, color = Party)) +
+  geom_point() +
+  geom_smooth() +
+  xlab('Vote Pct.') +
+  ylab('All Pass') +
+  ggtitle('Passage and Vote Pct., 110th Congress')
+)
+
+```
+
+Column
+---
+
+### Chart C
+
+```{r}
+
+plotly::ggplotly(
+  ggplot(plt2, aes(x = dwnom1, y = all_pass, color = Party)) +
+  geom_point() +
+  geom_smooth() +
+  xlab('DW Nominate.') +
+  ylab('All Pass') +
+  ggtitle('Passage and Ideology, 110th Congress')
+)
+
+```
+
+
+
+Page 3
+======
+
+Inputs {.sidebar}
+---
+
+```{r}
+selectInput(inputId = 'state',
+            label = 'State',
+            multiple = TRUE,
+            choices = unique(data$st_name),
+            selected = unique(data$st_name))
+```
+
+Column
+---
+### Chart D
+
+```{r}
+
+plt3 = data %>%
+  group_by(st_name) %>%
+  filter(congress==110) %>%
+  summarise(passed=sum(all_pass)) %>%
+  ungroup()
+
+selected_states = reactive(input$state)
+
+renderPlot(
+  ggplot(plt3 %>% filter(st_name %in% selected_states()), aes(x = st_name, y = passed)) +
+    geom_bar(stat = 'identity') +
+    xlab('State Name') +
+    ylab('Total Bills Passed by State') +
+    ggtitle('Total Bills Passed by State Delegations, 110th Congress') +
+    coord_flip()
+)
+
+```
